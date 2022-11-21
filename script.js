@@ -1,6 +1,10 @@
 const container = document.querySelector('.draw-container');
 const gridSizeButton = document.querySelector('.btn');
+const eraser = document.querySelector('.eraser');
+const pencil = document.querySelector('.pencil');
+const trash = document.querySelector('.erase-all');
 
+let isEraser = false;
 
 gridSizeButton.addEventListener('click', getGridSize);
 
@@ -9,6 +13,7 @@ function getGridSize() {
     if (!(gridSize > 0 && gridSize < 101)) {
         gridSize = prompt('Please try again');
     };
+    container.style.display = 'grid';
     if (container.firstChild != undefined) {
         removeCells();
     }
@@ -16,8 +21,20 @@ function getGridSize() {
     const drawingCells = document.querySelectorAll('.draw');
     reset(drawingCells);
     dragPaintCells(drawingCells);
+    pencil.addEventListener('click', () => {
+        isEraser = false;
+        dragPaintCells(drawingCells);
+    });
+    eraser.addEventListener('click', () => {
+        isEraser = true;
+        erasePaint(drawingCells);
+    });
+    trash.addEventListener('click', () => {
+        eraseAll(drawingCells);
+    });
 }
 // let gridSize = 11;
+
 
 function buildGrid(gridSize) {
     for (let i = 0; i < gridSize * gridSize; i++) {
@@ -28,25 +45,6 @@ function buildGrid(gridSize) {
         container.style.gridTemplateRows = `repeat(${gridSize}, 1fr)`;
     }
 }
-
-// buildGrid(gridSize);
-// const drawingCells = document.querySelectorAll('.draw');
-
-// function getDrawingCells() {
-// return drawingCells;
-
-// }
-
-
-
-
-// function fillCells(drawingCells) {
-//     drawingCells.forEach((cell) => {
-//         cell.addEventListener('click', () => {
-//             cell.classList.add('painted');
-//         });
-//     })
-// }
 
 function reset(drawingCells) {
     drawingCells.forEach((cell) => {
@@ -84,23 +82,27 @@ function dragPaintCells(drawingCells) {
     })
 }
 
+function erasePaint(drawingCells) {
+    drawingCells.forEach(cell => {
+        cell.addEventListener('mousedown', e => {
+            isEraser = true;
+        });
+        cell.addEventListener('mouseup', e => {
+            cell.classList.remove('painted');
+            isEraser = false;
+        })
+        cell.addEventListener('mousemove', () => {
+            if (!isEraser) {
+                return;
+            } else {
+                cell.classList.remove('painted');
+            }
+        })
+    })
+}
 
-// let MDOWN = false;
-
-// ['mousedown', 'mouseup'].forEach(e => {
-//     drawingCells.forEach((cell) => {
-//         cell.addEventListener(e, () => MDOWN = !MDOWN)
-//     });
-// });
-
-
-// function paintCells() {
-//     if (MDOWN) {
-//         this.classList.add('painted');
-//     }
-// }
-
-// drawingCells.forEach((cell) => {
-//     cell.addEventListener('click', paintCells);
-//     console.log('clicked')
-// })
+function eraseAll(drawingCells) {
+    drawingCells.forEach(cell => {
+        cell.classList.remove('painted');
+    });
+}
